@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Mod id="8a031cbd-69c1-487c-b091-7ec6b4be10ce" version="1">
+    <Properties>
+        <Name>Heavy Cavalry on Entertainment District built.</Name>
+        <Description>Grants a Heavy Cavalry unit when an entertainment district or one of its buildings are built.</Description>
+        <Teaser>Give Heavy Cavalry</Teaser>
+        <Authors>satoon101</Authors>
+        <CompatibleVersions>2.0</CompatibleVersions>
+    </Properties>
+
+    <InGameActions>
+        <AddGameplayScripts id="GrantHeavyCavalryScript">
+            <File>scripts/Gameplay/HeavyCavalryOnDistrict.lua</File>
+        </AddGameplayScripts>
+    </InGameActions>
+
+    <Files>
+        <File>scripts/Gameplay/HeavyCavalryOnDistrict.lua</File>
+    </Files>
+</Mod>
