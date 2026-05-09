@@ -10,16 +10,6 @@ for row in GameInfo.CivilizationTraits() do
     traitToCivMap[row.TraitType] = row.CivilizationType
 end
 
-local techMap = {}
-for row in GameInfo.Technologies() do
-    techMap[row.TechnologyType] = row.Index
-end
-
-local civicMap = {}
-for row in GameInfo.Civics() do
-    civicMap[row.CivicType] = row.Index
-end
-
 function shouldUnitSpawn(districtInfo)
     if districtInfo == nil then
         return false
@@ -64,14 +54,14 @@ function isValidUnit(unitInfo, techs, civics, civType, promotionClass)
     end
 
     if unitInfo.PrereqTech then
-        local techIndex = techMap[unitInfo.PrereqTech]
+        local techIndex = GameInfo.Technologies[unitInfo.PrereqTech].Index
         if not techs:HasTech(techIndex) then
             return false
         end
     end
 
     if unitInfo.PrereqCivic then
-        local civicIndex = civicMap[unitInfo.prereqCivic]
+        local civicIndex = GameInfo.Civics[unitInfo.prereqCivic].Index
         if not civics:HasCivic(civicIndex) then
             return false
         end
@@ -124,8 +114,8 @@ function spawnUnit(playerID, districtInfo, iX, iY)
     UnitManager.InitUnit(playerID, unitToSpawn.Index, iX, iY)
 end
 
-function BuildingConstructed(playerID, cityID, buildingID, plotID, bOriginalConstruction)
-    local buildingInfo = GameInfo.Buildings[buildingID]
+function BuildingConstructed(playerID, _, buildingTypeID, plotID)
+    local buildingInfo = GameInfo.Buildings[buildingTypeID]
     local districtInfo = GameInfo.Districts[buildingInfo.PrereqDistrict]
     local plot = Map.GetPlotByIndex(plotID)
     spawnUnit(playerID, districtInfo, plot:GetX(), plot:GetY())
