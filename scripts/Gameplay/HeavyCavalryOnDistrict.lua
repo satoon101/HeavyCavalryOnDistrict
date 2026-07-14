@@ -9,8 +9,21 @@ local traitToCivMap = {}
 for row in GameInfo.CivilizationTraits() do
     traitToCivMap[row.TraitType] = row.CivilizationType
 end
+local NO_BUILDING_INFO = "NO_BUILDING_INFO"
 
-function shouldUnitSpawn(districtInfo)
+function getPlayerHeavyCavalryUnitCount(playerID)
+    local count = 0
+    local player = Players[playerID]
+    local units = player:GetUnits()
+    for _, unit in units:Members() do
+        if unit:GetFormationClass() == "FORMATION_CLASS_HEAVY_CAVALRY" then
+            count = count + 1
+        end
+    end
+    return count
+end
+
+function shouldUnitSpawn(playerID, districtInfo, buildingInfo)
     if districtInfo == nil then
         return false
     end
@@ -30,6 +43,23 @@ function shouldUnitSpawn(districtInfo)
     if districtInfo.DistrictType == "DISTRICT_HIPPODROME" then
         return false
     end
+
+    if getPlayerHeavyCavalryUnitCount(playerID) >= 32 then
+        return false
+    end
+
+    if buildingInfo == NO_BUILDING_INFO then
+        return true
+    end
+
+    if buildingInfo == nil then
+        return false
+    end
+
+    if buildingInfo.BuildingType ~= "BUILDING_STADIUM" then
+        return false
+    end
+
     return true
 end
 
@@ -89,7 +119,7 @@ function GetBestAvailableUnit(player, playerID, promotionClass)
     return bestUnit
 end
 
-function spawnUnit(playerID, districtInfo, iX, iY)
+function spawnUnit(playerID, districtInfo, buildingInfo, iX, iY)
     local player = Players[playerID]
     if not player then
         return
@@ -99,7 +129,7 @@ function spawnUnit(playerID, districtInfo, iX, iY)
         return
     end
 
-    if not shouldUnitSpawn(districtInfo) then
+    if not shouldUnitSpawn(playerID, districtInfo, buildingInfo) then
         return
     end
 
@@ -115,10 +145,14 @@ function spawnUnit(playerID, districtInfo, iX, iY)
 end
 
 function BuildingConstructed(playerID, _, buildingTypeID, plotID)
+    if GameConfiguration.GetValue("GAME_NO_BARBARIANS") then
+        return
+    end
+
     local buildingInfo = GameInfo.Buildings[buildingTypeID]
     local districtInfo = GameInfo.Districts[buildingInfo.PrereqDistrict]
     local plot = Map.GetPlotByIndex(plotID)
-    spawnUnit(playerID, districtInfo, plot:GetX(), plot:GetY())
+    spawnUnit(playerID, districtInfo, buildingInfo, plot:GetX(), plot:GetY())
 end
 
 GameEvents.BuildingConstructed.Add(BuildingConstructed)
@@ -126,7 +160,7 @@ GameEvents.BuildingConstructed.Add(BuildingConstructed)
 
 function OnDistrictConstructed(playerID, districtID, iX, iY)
     local districtInfo = GameInfo.Districts[districtID]
-    spawnUnit(playerID, districtInfo, iX, iY)
+    spawnUnit(playerID, districtInfo, NO_BUILDING_INFO, iX, iY)
 end
 
 GameEvents.OnDistrictConstructed.Add(OnDistrictConstructed)
