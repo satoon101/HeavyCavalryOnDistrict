@@ -13,10 +13,11 @@ local NO_BUILDING_INFO = "NO_BUILDING_INFO"
 
 function getPlayerHeavyCavalryUnitCount(playerID)
     local count = 0
+    local promotionClass = "PROMOTION_CLASS_HEAVY_CAVALRY"
     local player = Players[playerID]
     local units = player:GetUnits()
     for _, unit in units:Members() do
-        if unit:GetFormationClass() == "FORMATION_CLASS_HEAVY_CAVALRY" then
+        if GameInfo.Units[unit:GetType()].PromotionClass == promotionClass then
             count = count + 1
         end
     end
@@ -53,10 +54,6 @@ function shouldUnitSpawn(playerID, districtInfo, buildingInfo)
     end
 
     if buildingInfo == nil then
-        return false
-    end
-
-    if buildingInfo.BuildingType ~= "BUILDING_STADIUM" then
         return false
     end
 
@@ -145,9 +142,9 @@ function spawnUnit(playerID, districtInfo, buildingInfo, iX, iY)
 end
 
 function BuildingConstructed(playerID, _, buildingTypeID, plotID)
-    if GameConfiguration.GetValue("GAME_NO_BARBARIANS") then
-        return
-    end
+    --if GameConfiguration.GetValue("GAME_NO_BARBARIANS") then
+    --    return
+    --end
 
     local buildingInfo = GameInfo.Buildings[buildingTypeID]
     local districtInfo = GameInfo.Districts[buildingInfo.PrereqDistrict]
